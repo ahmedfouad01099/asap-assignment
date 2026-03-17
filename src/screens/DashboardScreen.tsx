@@ -3,9 +3,34 @@ import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Image, StyleShe
 import { Icon } from "../components/ui/Icon";
 import { useTheme } from "../context/ThemeContext";
 import { SPACING, SHADOWS } from "../theme";
+import { useItemCountDB, useCustomerCountDB, useInvoiceDB } from "../database/hooks";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { theme, isDark } = useTheme();
+  const { getItemsCount } = useItemCountDB();
+  const { getCustomersCount } = useCustomerCountDB();
+  const { getInvoicesCount } = useInvoiceDB();
+
+  const [stats, setStats] = React.useState({ items: 0, customers: 0, invoices: 0 });
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchStats = async () => {
+        try {
+          const [items, customers, invoices] = await Promise.all([
+            getItemsCount(),
+            getCustomersCount(),
+            getInvoicesCount(),
+          ]);
+          setStats({ items, customers, invoices });
+        } catch (err) {
+          console.error("Fetch stats error:", err);
+        }
+      };
+      fetchStats();
+    }, [getItemsCount, getCustomersCount, getInvoicesCount])
+  );
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
@@ -34,7 +59,7 @@ export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) =
                   Items
                 </Text>
               </View>
-              <Text style={[styles.statValue, { color: theme.text }]}>1,240</Text>
+              <Text style={[styles.statValue, { color: theme.text }]}>{stats.items.toLocaleString()}</Text>
             </View>
 
             {/* Invoices Stat */}
@@ -45,7 +70,7 @@ export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) =
                   Invoices
                 </Text>
               </View>
-              <Text style={[styles.statValue, { color: theme.text }]}>850</Text>
+              <Text style={[styles.statValue, { color: theme.text }]}>{stats.invoices.toLocaleString()}</Text>
             </View>
           </View>
 
@@ -57,7 +82,7 @@ export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) =
                 Total Customers
               </Text>
             </View>
-            <Text style={[styles.statValue, { color: theme.text }]}>420</Text>
+            <Text style={[styles.statValue, { color: theme.text }]}>{stats.customers.toLocaleString()}</Text>
           </View>
         </View>
 
@@ -135,26 +160,6 @@ export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) =
           </View>
         </View>
       </ScrollView>
-
-      {/* Bottom Navigation */}
-      <View style={[styles.bottomNav, { backgroundColor: theme.card, borderTopColor: theme.border }]}>
-        <TouchableOpacity style={styles.navItem}>
-          <Icon name="home" color={theme.primary} size={24} />
-          <Text style={[styles.navText, { color: theme.primary }]}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('ItemMenu')} style={styles.navItem}>
-          <Icon name="list_alt" color={theme.textSecondary} size={24} />
-          <Text style={[styles.navText, { color: theme.textSecondary }]}>Inventory</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('SaleInvoiceList')} style={styles.navItem}>
-          <Icon name="shopping_cart" color={theme.textSecondary} size={24} />
-          <Text style={[styles.navText, { color: theme.textSecondary }]}>Sales</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Customers')} style={styles.navItem}>
-          <Icon name="person" color={theme.textSecondary} size={24} />
-          <Text style={[styles.navText, { color: theme.textSecondary }]}>Clients</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 };
@@ -187,7 +192,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 100,
+    paddingBottom: 24,
   },
   statsSection: {
     padding: SPACING.lg,
@@ -303,27 +308,5 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 20,
     fontWeight: "bold",
-  },
-  bottomNav: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    borderTopWidth: 1,
-    flexDirection: "row",
-    paddingHorizontal: SPACING.lg,
-    paddingBottom: 32,
-    paddingTop: 8,
-  },
-  navItem: {
-    flex: 1,
-    alignItems: "center",
-    gap: 4,
-  },
-  navText: {
-    fontSize: 10,
-    fontWeight: "bold",
-    textTransform: "uppercase",
-    letterSpacing: 1,
   },
 });

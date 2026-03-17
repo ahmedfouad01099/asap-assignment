@@ -80,7 +80,7 @@ export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
               label="Login to Dashboard"
               onPress={() => navigation.reset({
                 index: 0,
-                routes: [{ name: 'Dashboard' }],
+                routes: [{ name: 'Main' }],
               })}
               icon={<Icon name="login" color="white" size={20} />}
             />
