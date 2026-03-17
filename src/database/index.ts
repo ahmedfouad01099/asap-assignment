@@ -96,7 +96,7 @@ class DatabaseService {
     if (users.length === 0) {
       await this.executeQuery(
         "INSERT INTO Users (email, password, name) VALUES (?, ?, ?)",
-        ["admin@asap.com", "password123", "Ahmed Fouad"]
+        ["admin@asap.com", "password123", "ASAP Admin"]
       );
       console.log("Default admin user seeded");
     }
