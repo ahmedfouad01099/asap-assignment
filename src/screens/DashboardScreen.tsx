@@ -1,47 +1,29 @@
 import React from "react";
 import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { Icon } from "../components/ui/Icon";
+import { StatCard } from "../components/ui/StatCard";
+import { ActionCard } from "../components/ui/ActionCard";
 import { useTheme } from "../context/ThemeContext";
+import { useDashboard } from "../hooks/useDashboard";
 import { SPACING, SHADOWS } from "../theme";
-import { useItemCountDB, useCustomerCountDB, useInvoiceDB } from "../database/hooks";
-import { useFocusEffect } from "@react-navigation/native";
 
 export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { theme, isDark } = useTheme();
-  const { getItemsCount } = useItemCountDB();
-  const { getCustomersCount } = useCustomerCountDB();
-  const { getInvoicesCount } = useInvoiceDB();
-
-  const [stats, setStats] = React.useState({ items: 0, customers: 0, invoices: 0 });
-
-  useFocusEffect(
-    React.useCallback(() => {
-      const fetchStats = async () => {
-        try {
-          const [items, customers, invoices] = await Promise.all([
-            getItemsCount(),
-            getCustomersCount(),
-            getInvoicesCount(),
-          ]);
-          setStats({ items, customers, invoices });
-        } catch (err) {
-          console.error("Fetch stats error:", err);
-        }
-      };
-      fetchStats();
-    }, [getItemsCount, getCustomersCount, getInvoicesCount])
-  );
+  const { user, stats, handleLogout, getFirstName } = useDashboard(navigation);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
-        <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.headerButton}>
-          <Icon name="menu" color={theme.text} size={24} />
+        <TouchableOpacity onPress={handleLogout} style={styles.headerButton}>
+          <Icon name="login" color={theme.text} size={24} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>
-          Dashboard Home
-        </Text>
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <Text style={[styles.headerTitle, { color: theme.text }]}>
+            Hey, {getFirstName()} 👋
+          </Text>
+          <Text style={{ fontSize: 10, color: theme.textSecondary }}>StockSync Pro Dashboard</Text>
+        </View>
         <TouchableOpacity style={styles.headerButton}>
           <Icon name="notifications" color={theme.text} size={24} />
         </TouchableOpacity>
@@ -51,39 +33,23 @@ export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) =
         {/* Stats Section */}
         <View style={styles.statsSection}>
           <View style={styles.statsRow}>
-            {/* Items Stat */}
-            <View style={[styles.statCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
-              <View style={styles.statHeader}>
-                <Icon name="inventory_2" color={theme.primary} size={20} />
-                <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
-                  Items
-                </Text>
-              </View>
-              <Text style={[styles.statValue, { color: theme.text }]}>{stats.items.toLocaleString()}</Text>
-            </View>
-
-            {/* Invoices Stat */}
-            <View style={[styles.statCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
-              <View style={styles.statHeader}>
-                <Icon name="receipt_long" color={theme.primary} size={20} />
-                <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
-                  Invoices
-                </Text>
-              </View>
-              <Text style={[styles.statValue, { color: theme.text }]}>{stats.invoices.toLocaleString()}</Text>
-            </View>
+            <StatCard 
+              label="Items"
+              value={stats.items}
+              icon="inventory_2"
+            />
+            <StatCard 
+              label="Invoices"
+              value={stats.invoices}
+              icon="receipt_long"
+            />
           </View>
 
-          {/* Customers Stat */}
-          <View style={[styles.statCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
-            <View style={styles.statHeader}>
-              <Icon name="group" color={theme.primary} size={20} />
-              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
-                Total Customers
-              </Text>
-            </View>
-            <Text style={[styles.statValue, { color: theme.text }]}>{stats.customers.toLocaleString()}</Text>
-          </View>
+          <StatCard 
+            label="Total Customers"
+            value={stats.customers}
+            icon="group"
+          />
         </View>
 
         {/* Quick Navigation */}
@@ -93,56 +59,27 @@ export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) =
           </Text>
           
           <View style={styles.quickNavGrid}>
-            {/* Item Menu */}
-            <TouchableOpacity 
+            <ActionCard 
+              title="Item Menu"
+              subtitle="Manage stocks & categories"
+              icon="category"
+              variant="primary"
               onPress={() => navigation.navigate('ItemMenu')}
-              style={[styles.primaryActionCard, SHADOWS.primary, { backgroundColor: theme.primary }]}
-            >
-              <View style={styles.cardContent}>
-                <View style={[styles.primaryIconWrapper, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
-                  <Icon name="category" color="white" size={24} />
-                </View>
-                <View>
-                  <Text style={[styles.primaryActionTitle, { color: "white" }]}>Item Menu</Text>
-                  <Text style={[styles.primaryActionSubtitle, { color: "rgba(255, 255, 255, 0.8)" }]}>Manage stocks & categories</Text>
-                </View>
-              </View>
-              <Icon name="chevron_right" color="white" size={24} />
-            </TouchableOpacity>
+            />
 
-            {/* Transaction Menu */}
-            <TouchableOpacity 
+            <ActionCard 
+              title="Transaction Menu"
+              subtitle="Invoices & sales history"
+              icon="point_of_sale"
               onPress={() => navigation.navigate('SaleInvoiceList')}
-              style={[styles.secondaryActionCard, { backgroundColor: theme.card, borderColor: theme.border }]}
-            >
-              <View style={styles.cardContent}>
-                <View style={[styles.secondaryIconWrapper, { backgroundColor: isDark ? 'rgba(19, 91, 236, 0.2)' : 'rgba(19, 91, 236, 0.1)' }]}>
-                  <Icon name="point_of_sale" color={theme.primary} size={24} />
-                </View>
-                <View>
-                  <Text style={[styles.secondaryActionTitle, { color: theme.text }]}>Transaction Menu</Text>
-                  <Text style={[styles.secondaryActionSubtitle, { color: theme.textSecondary }]}>Invoices & sales history</Text>
-                </View>
-              </View>
-              <Icon name="chevron_right" color={theme.textSecondary} size={24} />
-            </TouchableOpacity>
+            />
 
-            {/* Customer Management */}
-            <TouchableOpacity 
+            <ActionCard 
+              title="Customer Management"
+              subtitle="Directory & active profiles"
+              icon="group"
               onPress={() => navigation.navigate('Customers')}
-              style={[styles.secondaryActionCard, { backgroundColor: theme.card, borderColor: theme.border }]}
-            >
-              <View style={styles.cardContent}>
-                <View style={[styles.secondaryIconWrapper, { backgroundColor: isDark ? 'rgba(19, 91, 236, 0.2)' : 'rgba(19, 91, 236, 0.1)' }]}>
-                  <Icon name="group" color={theme.primary} size={24} />
-                </View>
-                <View>
-                  <Text style={[styles.secondaryActionTitle, { color: theme.text }]}>Customer Management</Text>
-                  <Text style={[styles.secondaryActionSubtitle, { color: theme.textSecondary }]}>Directory & active profiles</Text>
-                </View>
-              </View>
-              <Icon name="chevron_right" color={theme.textSecondary} size={24} />
-            </TouchableOpacity>
+            />
           </View>
         </View>
 
@@ -202,29 +139,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 16,
   },
-  statCard: {
-    flex: 1,
-    borderRadius: 16,
-    padding: SPACING.lg,
-    borderWidth: 1,
-    ...SHADOWS.sm,
-  },
-  statHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 8,
-  },
-  statLabel: {
-    fontSize: 10,
-    fontWeight: "bold",
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: "bold",
-  },
   quickNavSection: {
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.sm,
@@ -236,49 +150,6 @@ const styles = StyleSheet.create({
   },
   quickNavGrid: {
     gap: 16,
-  },
-  cardContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-  },
-  primaryActionCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 20,
-    borderRadius: 16,
-  },
-  primaryIconWrapper: {
-    padding: 8,
-    borderRadius: 12,
-  },
-  primaryActionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  primaryActionSubtitle: {
-    fontSize: 14,
-  },
-  secondaryActionCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 20,
-    borderRadius: 16,
-    borderWidth: 1,
-    ...SHADOWS.sm,
-  },
-  secondaryIconWrapper: {
-    padding: 8,
-    borderRadius: 12,
-  },
-  secondaryActionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  secondaryActionSubtitle: {
-    fontSize: 14,
   },
   bannerSection: {
     padding: SPACING.lg,
