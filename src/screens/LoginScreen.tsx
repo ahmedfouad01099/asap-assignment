@@ -1,13 +1,30 @@
 import React from "react";
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Icon } from "../components/ui/Icon";
 import { useTheme } from "../context/ThemeContext";
+import { useLoginForm } from "../hooks/useLoginForm";
 import { SPACING } from "../theme";
 
 export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { theme, isDark } = useTheme();
+  
+  const {
+    email,
+    setEmail,
+    password,
+    setPassword,
+    isLoading,
+    errors,
+    handleLogin,
+    clearError
+  } = useLoginForm(() => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Main' }],
+    });
+  });
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
@@ -15,7 +32,7 @@ export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         <View style={styles.container}>
           {/* Top Bar */}
           <View style={styles.topBar}>
-            <TouchableOpacity style={styles.backButton}>
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
               <Icon name="arrow_back_ios" color={theme.text} size={20} />
             </TouchableOpacity>
             <Text style={[styles.title, { color: theme.text }]}>
@@ -40,17 +57,34 @@ export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           <View style={styles.formSection}>
             <Input
               label="Work Email"
-              placeholder="name@company.com"
+              placeholder="admin@asap.com"
               keyboardType="email-address"
               autoCapitalize="none"
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                clearError('email');
+              }}
+              error={errors.email}
               icon={<Icon name="mail" color={theme.textSecondary} size={20} />}
             />
             <Input
               label="Password"
               placeholder="Enter your password"
               secureTextEntry
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                clearError('password');
+              }}
+              error={errors.password}
               icon={<Icon name="lock" color={theme.textSecondary} size={20} />}
             />
+
+            {/* Hint for Interviewer */}
+            <Text style={{ fontSize: 12, color: theme.textSecondary, fontStyle: 'italic', marginTop: -8 }}>
+              Default: admin@asap.com / password123
+            </Text>
 
             {/* Remember Me / Forgot Pass */}
             <View style={styles.formOptions}>
@@ -77,12 +111,10 @@ export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           {/* Actions */}
           <View style={styles.actionSection}>
             <Button
-              label="Login to Dashboard"
-              onPress={() => navigation.reset({
-                index: 0,
-                routes: [{ name: 'Main' }],
-              })}
-              icon={<Icon name="login" color="white" size={20} />}
+              label={isLoading ? "Authenticating..." : "Login to Dashboard"}
+              onPress={handleLogin}
+              disabled={isLoading}
+              icon={isLoading ? <ActivityIndicator size="small" color="white" /> : <Icon name="login" color="white" size={20} />}
             />
             <View style={styles.footerLinks}>
               <Text style={[styles.footerText, { color: theme.textSecondary }]}>

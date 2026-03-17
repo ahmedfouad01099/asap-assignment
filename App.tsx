@@ -3,6 +3,7 @@ import { StatusBar, TouchableOpacity } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import { AuthProvider } from './src/context/AuthContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { Icon } from './src/components/ui/Icon';
 import { DB } from './src/database';
@@ -42,9 +43,11 @@ const MainApp = () => {
 function App(): React.JSX.Element {
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
-        <MainApp />
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          <MainApp />
+        </ThemeProvider>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }
