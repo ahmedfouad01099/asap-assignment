@@ -1,50 +1,46 @@
 import React from "react";
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, TextInput, StyleSheet } from "react-native";
+import { View, Text, SafeAreaView, TouchableOpacity, TextInput, StyleSheet, FlatList, Alert, Modal } from "react-native";
 import { Icon } from "../components/ui/Icon";
+import { StatCard } from "../components/ui/StatCard";
 import { useTheme } from "../context/ThemeContext";
 import { SPACING, SHADOWS } from "../theme";
+import { useCustomerManagement } from "../hooks/useCustomerManagement";
+import { Customer } from "../database/types";
 
 const CustomerItem: React.FC<{
-  initials: string;
-  name: string;
-  email: string;
-  phone: string;
-  bgColor: string;
-  textColor: string;
-  opacity?: number;
-}> = ({ initials, name, email, phone, bgColor, textColor, opacity = 1 }) => {
+  customer: Customer;
+  onDelete: (id: number) => void;
+}> = ({ customer, onDelete }) => {
   const { theme } = useTheme();
+  const initials = customer.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
   
   return (
     <View 
       style={[
         styles.customerCard, 
-        { opacity, backgroundColor: theme.card, borderColor: theme.border },
+        { backgroundColor: theme.card, borderColor: theme.border },
         SHADOWS.sm
       ]}
     >
       <View 
-        style={[styles.avatar, { backgroundColor: bgColor }]}
+        style={[styles.avatar, { backgroundColor: `${theme.primary}15` }]}
       >
-        <Text style={[styles.avatarText, { color: textColor }]}>{initials}</Text>
+        <Text style={[styles.avatarText, { color: theme.primary }]}>{initials}</Text>
       </View>
       <View style={styles.customerInfo}>
-        <Text style={[styles.customerName, { color: theme.text }]} numberOfLines={1}>{name}</Text>
+        <Text style={[styles.customerName, { color: theme.text }]} numberOfLines={1}>{customer.name}</Text>
         <View style={styles.contactRow}>
           <Icon name="mail" color={theme.textSecondary} size={14} />
-          <Text style={[styles.contactText, { color: theme.textSecondary }]} numberOfLines={1}>{email}</Text>
+          <Text style={[styles.contactText, { color: theme.textSecondary }]} numberOfLines={1}>{customer.email || "No email"}</Text>
         </View>
         <View style={styles.contactRow}>
           <Icon name="call" color={theme.textSecondary} size={12} />
-          <Text style={[styles.contactText, { color: theme.textSecondary }]} numberOfLines={1}>{phone}</Text>
+          <Text style={[styles.contactText, { color: theme.textSecondary }]} numberOfLines={1}>{customer.phone}</Text>
         </View>
       </View>
       <View style={styles.actionButtons}>
-        <TouchableOpacity style={styles.iconButton}>
-          <Icon name="edit" color={theme.primary} size={20} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.deleteButton}>
-          <Icon name="delete" color="#ef4444" size={20} />
+        <TouchableOpacity style={styles.deleteButton} onPress={() => onDelete(customer.id)}>
+          <Icon name="delete" color={theme.danger} size={20} />
         </TouchableOpacity>
       </View>
     </View>
@@ -52,25 +48,37 @@ const CustomerItem: React.FC<{
 };
 
 export const CustomerManagementListScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const { theme, isDark } = useTheme();
+  const { theme } = useTheme();
+  const { 
+    customers, 
+    count, 
+    search, 
+    setSearch, 
+    modalVisible, 
+    setModalVisible, 
+    newName, 
+    setNewName, 
+    newPhone, 
+    setNewPhone, 
+    newEmail, 
+    setNewEmail, 
+    handleAddCustomer, 
+    handleDelete,
+    isLoading 
+  } = useCustomerManagement();
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
-      {/* Header */}
       <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
-          <Icon name="menu" color={theme.primary} size={24} />
-        </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: theme.text }]}>
           Customers
         </Text>
-        <TouchableOpacity style={styles.headerButton}>
-          <Icon name="filter_list" color={theme.primary} size={24} />
+        <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.headerButton}>
+          <Icon name="add" color={theme.primary} size={24} />
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.scrollView}>
-        {/* Search Bar */}
+      <View style={styles.content}>
         <View style={[styles.searchSection, { backgroundColor: theme.card }]}>
           <View style={[styles.searchBar, { backgroundColor: theme.background }]}>
             <Icon name="search" color={theme.textSecondary} size={20} />
@@ -78,98 +86,81 @@ export const CustomerManagementListScreen: React.FC<{ navigation: any }> = ({ na
               style={[styles.searchInput, { color: theme.text }]}
               placeholder="Search customers..."
               placeholderTextColor={theme.textSecondary}
+              value={search}
+              onChangeText={setSearch}
             />
           </View>
         </View>
 
-        {/* Stats / Overview */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.statsContainer}>
-          <View style={[styles.statBadge, { backgroundColor: isDark ? 'rgba(19, 91, 236, 0.2)' : 'rgba(19, 91, 236, 0.1)', borderColor: isDark ? 'rgba(19, 91, 236, 0.2)' : 'rgba(19, 91, 236, 0.1)' }]}>
-            <Text style={[styles.statLabel, { color: theme.primary }]}>Total Customers</Text>
-            <Text style={[styles.statValue, { color: theme.text }]}>1,284</Text>
-          </View>
-          <View style={[styles.statBadge, { backgroundColor: isDark ? '#1e293b' : '#f1f5f9', borderColor: theme.border }]}>
-            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Active Today</Text>
-            <Text style={[styles.statValue, { color: theme.text }]}>42</Text>
-          </View>
-        </ScrollView>
-
-        {/* Customer List Section */}
-        <View style={styles.listSection}>
-          <CustomerItem 
-            initials="JD" 
-            name="Johnathan Doe" 
-            email="john.doe@enterprise.com" 
-            phone="+1 (555) 012-3456" 
-            bgColor="rgba(19, 91, 236, 0.1)" 
-            textColor="#135bec" 
-          />
-          <CustomerItem 
-            initials="JS" 
-            name="Jane Smith" 
-            email="jane.smith@design.co" 
-            phone="+1 (555) 987-6543" 
-            bgColor="rgba(79, 70, 229, 0.1)" 
-            textColor="#4f46e5" 
-          />
-          <CustomerItem 
-            initials="RW" 
-            name="Robert Williams" 
-            email="robert.w@techpulse.io" 
-            phone="+1 (555) 246-8101" 
-            bgColor="rgba(20, 184, 166, 0.1)" 
-            textColor="#14b8a6" 
-          />
-          <CustomerItem 
-            initials="LB" 
-            name="Linda Brown" 
-            email="linda.b@marketplace.com" 
-            phone="+1 (555) 333-4444" 
-            bgColor="rgba(245, 158, 11, 0.1)" 
-            textColor="#f59e0b" 
-          />
-          <CustomerItem 
-            initials="MM" 
-            name="Michael Moore" 
-            email="m.moore@logistics.net" 
-            phone="+1 (555) 555-0199" 
-            bgColor="rgba(100, 116, 139, 0.1)" 
-            textColor="#64748b" 
-            opacity={0.8}
+        <View style={styles.statsContainer}>
+          <StatCard 
+            label="Total Customers"
+            value={count}
+            icon="group"
           />
         </View>
-      </ScrollView>
 
-      {/* Floating Action Button */}
-      <TouchableOpacity 
-        style={[styles.fab, SHADOWS.primary, { backgroundColor: theme.primary }]}
-      >
-        <Icon name="add" color="white" size={30} />
-      </TouchableOpacity>
-
-      {/* Bottom Navigation Bar */}
-      <View style={[styles.bottomNav, { backgroundColor: theme.card, borderTopColor: theme.border }]}>
-        <TouchableOpacity onPress={() => navigation.navigate('ItemMenu')} style={styles.navItem}>
-          <Icon name="inventory_2" color={theme.textSecondary} size={24} />
-          <Text style={[styles.navText, { color: theme.textSecondary }]}>Inventory</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('SaleInvoiceList')} style={styles.navItem}>
-          <Icon name="receipt_long" color={theme.textSecondary} size={24} />
-          <Text style={[styles.navText, { color: theme.textSecondary }]}>Sales</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Icon name="group" color={theme.primary} size={24} />
-          <Text style={[styles.navText, { color: theme.primary, fontWeight: "bold" }]}>Customers</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Icon name="person" color={theme.textSecondary} size={24} />
-          <Text style={[styles.navText, { color: theme.textSecondary }]}>Profile</Text>
-        </TouchableOpacity>
+        <FlatList
+          data={customers}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item }) => <CustomerItem customer={item} onDelete={handleDelete} />}
+          contentContainerStyle={styles.listSection}
+          ListEmptyComponent={
+            <View style={{ alignItems: 'center', marginTop: 40 }}>
+              <Text style={{ color: theme.textSecondary }}>
+                {isLoading ? "Loading customers..." : "No customers found"}
+              </Text>
+            </View>
+          }
+        />
       </View>
+
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>New Customer</Text>
+            <TextInput 
+              style={[styles.modalInput, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
+              placeholder="Full Name"
+              placeholderTextColor={theme.textSecondary}
+              value={newName}
+              onChangeText={setNewName}
+            />
+            <TextInput 
+              style={[styles.modalInput, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
+              placeholder="Phone Number"
+              placeholderTextColor={theme.textSecondary}
+              value={newPhone}
+              onChangeText={setNewPhone}
+              keyboardType="phone-pad"
+            />
+            <TextInput 
+              style={[styles.modalInput, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
+              placeholder="Email (Optional)"
+              placeholderTextColor={theme.textSecondary}
+              value={newEmail}
+              onChangeText={setNewEmail}
+              keyboardType="email-address"
+            />
+            <View style={styles.modalActions}>
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalCancel}>
+                <Text style={{ color: theme.textSecondary }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleAddCustomer} style={[styles.modalAdd, { backgroundColor: theme.primary }]}>
+                <Text style={{ color: 'white', fontWeight: 'bold' }}>Add Customer</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -195,7 +186,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: "center",
   },
-  scrollView: {
+  content: {
     flex: 1,
   },
   searchSection: {
@@ -215,33 +206,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   statsContainer: {
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-    gap: 12,
-    flexDirection: "row",
-  },
-  statBadge: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 16,
-    borderWidth: 1,
-    marginRight: 12,
-  },
-  statLabel: {
-    fontSize: 10,
-    fontWeight: "bold",
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  statValue: {
-    fontSize: 18,
-    fontWeight: "bold",
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   listSection: {
     paddingHorizontal: SPACING.lg,
     gap: 12,
     marginTop: 8,
-    paddingBottom: 112,
+    paddingBottom: 24,
   },
   customerCard: {
     flexDirection: "row",
@@ -284,46 +256,53 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 4,
   },
-  iconButton: {
-    padding: 8,
-    borderRadius: 8,
-  },
   deleteButton: {
     padding: 8,
     borderRadius: 8,
   },
-  fab: {
-    position: "absolute",
-    bottom: 96,
-    right: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  bottomNav: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    borderTopWidth: 1,
-    flexDirection: "row",
-    paddingHorizontal: SPACING.lg,
-    paddingBottom: 32,
-    paddingTop: 8,
-    justifyContent: "space-around",
-    alignItems: "center",
-  },
-  navItem: {
+  modalOverlay: {
     flex: 1,
-    alignItems: "center",
-    gap: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
   },
-  navText: {
-    fontSize: 10,
+  modalContent: {
+    padding: 24,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    gap: 16,
+    paddingBottom: 40,
   },
-  navTextActive: {
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  modalInput: {
+    height: 56,
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    fontSize: 16,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  modalCancel: {
+    flex: 1,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 16,
+  },
+  modalAdd: {
+    flex: 2,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 16,
+    ...SHADOWS.primary,
   },
 });
 
