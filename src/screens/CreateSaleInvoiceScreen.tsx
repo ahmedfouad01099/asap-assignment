@@ -1,34 +1,51 @@
 import React from "react";
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, TextInput, StyleSheet } from "react-native";
+import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, TextInput, StyleSheet, Alert, Modal, FlatList } from "react-native";
 import { Icon } from "../components/ui/Icon";
 import { useTheme } from "../context/ThemeContext";
 import { SPACING, SHADOWS } from "../theme";
+import { useCreateSaleInvoice } from "../hooks/useCreateSaleInvoice";
 
 export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { theme } = useTheme();
+  const {
+    loading,
+    customers,
+    items,
+    selectedCustomer,
+    setSelectedCustomer,
+    lineItems,
+    itemModalVisible,
+    setItemModalVisible,
+    customerModalVisible,
+    setCustomerModalVisible,
+    invoiceNumber,
+    today,
+    subtotal,
+    vat,
+    total,
+    addLineItem,
+    removeLineItem,
+    handleSave,
+  } = useCreateSaleInvoice(navigation);
+
+  if (loading) return null;
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
-      {/* Top Navigation Bar */}
       <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()}
-          style={styles.headerButton}
-        >
-          <Icon name="arrow_back" color={theme.text} size={24} />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
+          <Icon name="arrow_back_ios" color={theme.text} size={20} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>
-          Create Sale Invoice
-        </Text>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>Create Sale Invoice</Text>
+        <View style={{ width: 40 }} />
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {/* Invoice Header Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>Invoice Header</Text>
-            <View style={[styles.badge, { backgroundColor: 'rgba(19, 91, 236, 0.1)' }]}>
-              <Text style={[styles.badgeText, { color: theme.primary }]}>Draft</Text>
+            <View style={[styles.badge, { backgroundColor: `${theme.success}15` }]}>
+              <Text style={[styles.badgeText, { color: theme.success }]}>Sale</Text>
             </View>
           </View>
           
@@ -36,123 +53,75 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
             <View style={styles.flexField}>
               <Text style={[styles.label, { color: theme.textSecondary }]}>Invoice Number</Text>
               <View style={[styles.readonlyInput, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                <Text style={[styles.readonlyText, { color: theme.textSecondary }]}>#INV-2023-0842</Text>
+                <Text style={[styles.readonlyText, { color: theme.textSecondary }]}>{invoiceNumber}</Text>
               </View>
             </View>
             <View style={styles.flexField}>
               <Text style={[styles.label, { color: theme.textSecondary }]}>Date</Text>
-              <View style={styles.inputWrapper}>
-                <TextInput 
-                  style={[styles.input, { backgroundColor: theme.card, borderColor: theme.border, color: theme.text }]}
-                  value="2023-10-27"
-                  editable={false}
-                />
-                <View style={styles.inputIcon}>
-                  <Icon name="calendar_today" color={theme.textSecondary} size={18} />
-                </View>
+              <View style={[styles.readonlyInput, { backgroundColor: theme.background, borderColor: theme.border }]}>
+                <Text style={[styles.readonlyText, { color: theme.textSecondary }]}>{today}</Text>
               </View>
             </View>
           </View>
           
           <View style={styles.fieldContainer}>
             <Text style={[styles.label, { color: theme.textSecondary }]}>Customer</Text>
-            <TouchableOpacity style={[styles.pickerToggle, { backgroundColor: theme.card, borderColor: theme.border }]}>
-              <Text style={[styles.pickerText, { color: theme.text }]}>Acme Corporation</Text>
-              <View style={styles.inputIcon}>
-                <Icon name="expand_more" color={theme.textSecondary} size={24} />
-              </View>
+            <TouchableOpacity 
+              onPress={() => setCustomerModalVisible(true)}
+              style={[styles.pickerToggle, { backgroundColor: theme.card, borderColor: theme.border }]}
+            >
+              <Text style={[styles.pickerText, { color: theme.text }]}>
+                {selectedCustomer ? selectedCustomer.name : "Select Customer"}
+              </Text>
+              <Icon name="expand_more" color={theme.textSecondary} size={24} />
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Line Item Section */}
         <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }, SHADOWS.sm]}>
           <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>Item Details</Text>
-          <View style={styles.row}>
-            <View style={styles.flexField}>
-              <Text style={[styles.label, { color: theme.textSecondary }]}>Category</Text>
-              <TouchableOpacity style={[styles.pickerToggleSmall, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                <Text style={[styles.pickerTextSmall, { color: theme.text }]}>Electronics</Text>
-                <View style={styles.inputIconSmall}>
-                  <Icon name="unfold_more" color={theme.textSecondary} size={18} />
-                </View>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.flexField}>
-              <Text style={[styles.label, { color: theme.textSecondary }]}>Product</Text>
-              <TouchableOpacity style={[styles.pickerToggleSmall, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                <Text style={[styles.pickerTextSmall, { color: theme.text }]}>Monitor 27" 4K</Text>
-                <View style={styles.inputIconSmall}>
-                  <Icon name="unfold_more" color={theme.textSecondary} size={18} />
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
           
-          <View style={styles.row}>
-            <View style={styles.smallField}>
-              <Text style={[styles.tinyLabel, { color: theme.textSecondary }]}>Quantity</Text>
-              <TextInput 
-                style={[styles.inputSmall, { backgroundColor: theme.card, borderColor: theme.border, color: theme.text }]}
-                value="2"
-                keyboardType="numeric"
-              />
-            </View>
-            <View style={styles.smallField}>
-              <Text style={[styles.tinyLabel, { color: theme.textSecondary }]}>Price</Text>
-              <TextInput 
-                style={[styles.inputSmall, { backgroundColor: theme.card, borderColor: theme.border, color: theme.text }]}
-                value="350.00"
-                keyboardType="numeric"
-              />
-            </View>
-            <View style={styles.smallField}>
-              <Text style={[styles.tinyLabel, { color: theme.textSecondary, textAlign: 'right' }]}>Subtotal</Text>
-              <View style={[styles.subtotalBadge, { backgroundColor: 'rgba(19, 91, 236, 0.05)' }]}>
-                <Text style={[styles.subtotalText, { color: theme.primary }]}>$700.00</Text>
+          {lineItems.map((li, index) => (
+            <View key={index} style={styles.lineItemRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: theme.text, fontWeight: 'bold' }}>{li.item.name}</Text>
+                <Text style={{ color: theme.textSecondary, fontSize: 12 }}>{li.quantity} x ${li.item.price.toFixed(2)}</Text>
               </View>
+              <Text style={{ color: theme.text, fontWeight: 'bold' }}>${(li.quantity * li.item.price).toFixed(2)}</Text>
+              <TouchableOpacity onPress={() => removeLineItem(li.item.id)} style={{ marginLeft: 12 }}>
+                <Icon name="delete_outline" color={theme.danger} size={20} />
+              </TouchableOpacity>
             </View>
-          </View>
-          
-          <TouchableOpacity style={[styles.addButton, { borderColor: theme.border }]}>
-            <Icon name="add_circle" color={theme.textSecondary} size={18} />
-            <Text style={[styles.addButtonText, { color: theme.textSecondary }]}>Add Line Item</Text>
+          ))}
+
+          <TouchableOpacity 
+            onPress={() => setItemModalVisible(true)}
+            style={[styles.addButton, { borderColor: theme.border }]}
+          >
+            <Icon name="add_circle" color={theme.primary} size={18} />
+            <Text style={[styles.addButtonText, { color: theme.primary }]}>Add Line Item</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Summary Section */}
         <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }, SHADOWS.sm]}>
-          <View style={[styles.cardHeader, { borderBottomColor: theme.border }]}>
-            <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>Invoice Summary</Text>
-          </View>
+          <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>Invoice Summary</Text>
           <View style={styles.cardContent}>
             <View style={styles.summaryRow}>
-              <Text style={{ color: theme.textSecondary }}>Subtotal (2 items)</Text>
-              <Text style={[styles.summaryValue, { color: theme.text }]}>$700.00</Text>
+              <Text style={{ color: theme.textSecondary }}>Subtotal</Text>
+              <Text style={[styles.summaryValue, { color: theme.text }]}>${subtotal.toFixed(2)}</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={{ color: theme.textSecondary }}>VAT (15%)</Text>
-              <Text style={[styles.summaryValue, { color: theme.text }]}>$105.00</Text>
+              <Text style={[styles.summaryValue, { color: theme.text }]}>${vat.toFixed(2)}</Text>
             </View>
             <View style={[styles.totalRow, { borderTopColor: theme.border }]}>
               <Text style={[styles.totalLabel, { color: theme.text }]}>Grand Total</Text>
-              <Text style={[styles.totalValue, { color: theme.primary }]}>$805.00</Text>
+              <Text style={[styles.totalValue, { color: theme.primary }]}>${total.toFixed(2)}</Text>
             </View>
           </View>
         </View>
-
-        {/* Payment Info */}
-        <View style={[styles.infoCard, { backgroundColor: 'rgba(19, 91, 236, 0.05)', borderColor: 'rgba(19, 91, 236, 0.1)' }]}>
-          <Icon name="info" color={theme.primary} size={20} />
-          <Text style={[styles.infoText, { color: theme.primary }]}>
-            Payment is due within 30 days of invoice date.
-          </Text>
-        </View>
-        
-        <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* Bottom Action Bar */}
       <View style={[styles.footer, { backgroundColor: theme.card, borderTopColor: theme.border }]}>
         <TouchableOpacity 
           onPress={() => navigation.goBack()}
@@ -161,13 +130,65 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
           <Text style={[styles.cancelButtonText, { color: theme.textSecondary }]}>Cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity 
-          onPress={() => navigation.goBack()}
+          onPress={handleSave}
           style={[styles.saveButton, { backgroundColor: theme.primary }, SHADOWS.primary]}
         >
           <Icon name="save" color="white" size={20} />
-          <Text style={styles.saveButtonText}>Save Invoice</Text>
+          <Text style={styles.saveButtonText}>Complete Sale</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Customer Modal */}
+      <Modal visible={customerModalVisible} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>Select Customer</Text>
+            <FlatList
+              data={customers}
+              keyExtractor={c => c.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity 
+                  onPress={() => { setSelectedCustomer(item); setCustomerModalVisible(false); }}
+                  style={[styles.modalItem, { borderBottomColor: theme.border }]}
+                >
+                  <Text style={{ color: theme.text }}>{item.name} ({item.phone})</Text>
+                </TouchableOpacity>
+              )}
+            />
+            <TouchableOpacity onPress={() => setCustomerModalVisible(false)} style={styles.modalClose}>
+              <Text style={{ color: theme.primary }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Item Modal */}
+      <Modal visible={itemModalVisible} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>Select Product</Text>
+            <FlatList
+              data={items}
+              keyExtractor={i => i.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity 
+                  onPress={() => addLineItem(item)}
+                  style={[styles.modalItem, { borderBottomColor: theme.border }]}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: theme.text }}>{item.name}</Text>
+                    <Text style={{ color: theme.textSecondary, fontSize: 12 }}>Stock: {item.quantity}</Text>
+                  </View>
+                  <Text style={{ color: theme.primary, fontWeight: 'bold' }}>${item.price.toFixed(2)}</Text>
+                </TouchableOpacity>
+              )}
+            />
+            <TouchableOpacity onPress={() => setItemModalVisible(false)} style={styles.modalClose}>
+              <Text style={{ color: theme.primary }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -235,18 +256,8 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 6,
   },
-  smallField: {
-    flex: 1,
-    gap: 6,
-  },
   label: {
     fontSize: 14,
-    fontWeight: "medium",
-  },
-  tinyLabel: {
-    fontSize: 10,
-    fontWeight: "bold",
-    textTransform: "uppercase",
   },
   readonlyInput: {
     width: "100%",
@@ -257,24 +268,6 @@ const styles = StyleSheet.create({
   },
   readonlyText: {
     fontSize: 14,
-    fontFamily: "monospace",
-  },
-  inputWrapper: {
-    position: "relative",
-    height: 44,
-    justifyContent: "center",
-  },
-  input: {
-    width: "100%",
-    height: "100%",
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    fontSize: 14,
-  },
-  inputIcon: {
-    position: "absolute",
-    right: 12,
   },
   fieldContainer: {
     gap: 6,
@@ -283,6 +276,7 @@ const styles = StyleSheet.create({
   pickerToggle: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     width: "100%",
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -298,47 +292,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 16,
   },
-  cardHeader: {
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-  },
   cardContent: {
     gap: 12,
   },
-  pickerToggleSmall: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  pickerTextSmall: {
-    fontSize: 13,
-  },
-  inputIconSmall: {
-    position: "absolute",
-    right: 8,
-  },
-  inputSmall: {
-    width: "100%",
-    paddingHorizontal: 12,
+  lineItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    fontSize: 14,
-  },
-  subtotalBadge: {
-    width: "100%",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    alignItems: "flex-end",
-  },
-  subtotalText: {
-    fontSize: 14,
-    fontWeight: "bold",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#ccc',
   },
   addButton: {
     width: "100%",
@@ -353,7 +315,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 14,
-    fontWeight: "medium",
+    fontWeight: "bold",
   },
   summaryRow: {
     flexDirection: "row",
@@ -361,7 +323,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   summaryValue: {
-    fontWeight: "medium",
+    fontWeight: "bold",
   },
   totalRow: {
     paddingTop: 12,
@@ -379,24 +341,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
-  infoCard: {
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  infoText: {
-    fontSize: 12,
-    fontWeight: "medium",
-    flex: 1,
-  },
   footer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
     padding: 16,
     paddingBottom: 32,
     borderTopWidth: 1,
@@ -406,9 +351,8 @@ const styles = StyleSheet.create({
   cancelButton: {
     flex: 1,
     paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderWidth: 1,
     borderRadius: 16,
+    borderWidth: 1,
     alignItems: "center",
   },
   cancelButtonText: {
@@ -417,7 +361,6 @@ const styles = StyleSheet.create({
   saveButton: {
     flex: 2,
     paddingVertical: 16,
-    paddingHorizontal: 24,
     borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
@@ -427,5 +370,34 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: "white",
     fontWeight: "bold",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    maxHeight: '80%',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  modalItem: {
+    paddingVertical: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  modalClose: {
+    marginTop: 16,
+    paddingVertical: 12,
+    alignItems: 'center',
   },
 });
