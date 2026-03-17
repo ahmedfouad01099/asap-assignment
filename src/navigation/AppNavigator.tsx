@@ -15,7 +15,7 @@ import { CreateSaleInvoiceScreen } from '../screens/CreateSaleInvoiceScreen';
 import { ItemListScreen } from '../screens/ItemListScreen';
 import { ItemCategoryScreen } from '../screens/ItemCategoryScreen';
 import { SaleInvoiceListScreen } from '../screens/SaleInvoiceListScreen';
-import { InventoryScreen } from '../screens/PlaceholderScreens';
+import { InventoryScreen } from '../screens/InventoryScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabStackParamList>();

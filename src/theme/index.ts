@@ -6,6 +6,9 @@ export const THEMES = {
     textSecondary: "#64748b",
     border: "#e2e8f0",
     primary: "#135bec",
+    success: "#22c55e",
+    warning: "#f59e0b",
+    danger: "#ef4444",
   },
   dark: {
     background: "#101622",
@@ -14,6 +17,9 @@ export const THEMES = {
     textSecondary: "#94a3b8",
     border: "#334155",
     primary: "#135bec",
+    success: "#22c55e",
+    warning: "#f59e0b",
+    danger: "#ef4444",
   },
 };
 

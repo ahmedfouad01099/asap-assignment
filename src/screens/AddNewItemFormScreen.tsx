@@ -1,15 +1,26 @@
 import React from "react";
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, TextInput, StyleSheet } from "react-native";
+import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, TextInput, StyleSheet, Alert } from "react-native";
 import { Icon } from "../components/ui/Icon";
 import { useTheme } from "../context/ThemeContext";
 import { SPACING, SHADOWS } from "../theme";
+import { useAddNewItem } from "../hooks/useAddNewItem";
 
 export const AddNewItemFormScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { theme, isDark } = useTheme();
+  const {
+    name,
+    setName,
+    price,
+    setPrice,
+    quantity,
+    setQuantity,
+    selectedCategory,
+    handleSave,
+    toggleCategory
+  } = useAddNewItem(navigation);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
-      {/* Top Navigation Bar */}
       <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
         <TouchableOpacity 
           onPress={() => navigation.goBack()}
@@ -23,7 +34,6 @@ export const AddNewItemFormScreen: React.FC<{ navigation: any }> = ({ navigation
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {/* Item Name Field */}
         <View style={styles.fieldContainer}>
           <Text style={[styles.label, { color: theme.text }]}>
             Item Name
@@ -32,21 +42,26 @@ export const AddNewItemFormScreen: React.FC<{ navigation: any }> = ({ navigation
             style={[styles.input, { backgroundColor: theme.card, borderColor: theme.border, color: theme.text }]}
             placeholder="e.g. Wireless Headphones"
             placeholderTextColor={theme.textSecondary}
+            value={name}
+            onChangeText={setName}
           />
         </View>
 
-        {/* Category Field */}
         <View style={styles.fieldContainer}>
           <Text style={[styles.label, { color: theme.text }]}>
             Category
           </Text>
-          <TouchableOpacity style={[styles.pickerToggle, { backgroundColor: theme.card, borderColor: theme.border }]}>
-            <Text style={[styles.pickerText, { color: theme.textSecondary }]}>Select category</Text>
+          <TouchableOpacity 
+            onPress={toggleCategory}
+            style={[styles.pickerToggle, { backgroundColor: theme.card, borderColor: theme.border }]}
+          >
+            <Text style={[styles.pickerText, { color: selectedCategory ? theme.text : theme.textSecondary }]}>
+              {selectedCategory ? selectedCategory.name : "Select category"}
+            </Text>
             <Icon name="expand_more" color={theme.textSecondary} size={24} />
           </TouchableOpacity>
         </View>
 
-        {/* Price and Quantity Row */}
         <View style={styles.row}>
           <View style={styles.flexField}>
             <Text style={[styles.label, { color: theme.text }]}>
@@ -59,6 +74,8 @@ export const AddNewItemFormScreen: React.FC<{ navigation: any }> = ({ navigation
                 placeholder="0.00"
                 placeholderTextColor={theme.textSecondary}
                 keyboardType="numeric"
+                value={price}
+                onChangeText={setPrice}
               />
             </View>
           </View>
@@ -71,13 +88,14 @@ export const AddNewItemFormScreen: React.FC<{ navigation: any }> = ({ navigation
               placeholder="0"
               placeholderTextColor={theme.textSecondary}
               keyboardType="numeric"
+              value={quantity}
+              onChangeText={setQuantity}
             />
           </View>
         </View>
 
-        {/* Additional Info Section */}
         <View style={styles.infoSection}>
-          <View style={[styles.infoCard, { backgroundColor: isDark ? 'rgba(19, 91, 236, 0.1)' : 'rgba(19, 91, 236, 0.05)', borderColor: isDark ? 'rgba(19, 91, 236, 0.2)' : 'rgba(19, 91, 236, 0.1)' }]}>
+          <View style={[styles.infoCard, { backgroundColor: isDark ? `${theme.primary}15` : `${theme.primary}10`, borderColor: isDark ? `${theme.primary}30` : `${theme.primary}20` }]}>
             <View style={styles.infoIconWrapper}>
               <Icon name="info" color={theme.primary} size={20} />
             </View>
@@ -88,10 +106,9 @@ export const AddNewItemFormScreen: React.FC<{ navigation: any }> = ({ navigation
         </View>
       </ScrollView>
 
-      {/* Fixed Bottom Action Bar */}
       <View style={[styles.footer, { backgroundColor: theme.card, borderTopColor: theme.border }]}>
         <TouchableOpacity 
-          onPress={() => navigation.goBack()}
+          onPress={handleSave}
           style={[styles.saveButton, SHADOWS.primary, { backgroundColor: theme.primary }]}
         >
           <Icon name="database" color="white" size={20} />
