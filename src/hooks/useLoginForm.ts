@@ -7,8 +7,8 @@ export const useLoginForm = (onSuccess: () => void) => {
   const { login } = useAuth();
   const { getUserByEmail } = useAuthDB();
   
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin@asap.com");
+  const [password, setPassword] = useState("password123");
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 

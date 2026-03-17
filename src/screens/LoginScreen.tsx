@@ -9,7 +9,7 @@ import { SPACING } from "../theme";
 
 export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { theme, isDark } = useTheme();
-  
+
   const {
     email,
     setEmail,
@@ -90,10 +90,10 @@ export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             <View style={styles.formOptions}>
               <TouchableOpacity style={styles.checkboxContainer}>
                 <View style={[
-                  styles.checkbox, 
-                  { 
+                  styles.checkbox,
+                  {
                     borderColor: theme.border,
-                    backgroundColor: theme.background 
+                    backgroundColor: theme.background
                   }
                 ]} />
                 <Text style={[styles.checkboxLabel, { color: theme.textSecondary }]}>
