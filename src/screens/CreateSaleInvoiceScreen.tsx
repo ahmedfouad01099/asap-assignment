@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, TextInput, StyleSheet, Alert, Modal, FlatList } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert, Modal, FlatList } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon } from "../components/ui/Icon";
 import { useTheme } from "../context/ThemeContext";
 import { SPACING, SHADOWS } from "../theme";

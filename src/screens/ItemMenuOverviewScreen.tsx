@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon } from "../components/ui/Icon";
 import { ActionCard } from "../components/ui/ActionCard";
 import { useTheme } from "../context/ThemeContext";

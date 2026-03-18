@@ -3,11 +3,11 @@ import {
   View, 
   Text, 
   FlatList, 
-  SafeAreaView, 
   TouchableOpacity, 
   StyleSheet, 
   ScrollView 
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon } from "../components/ui/Icon";
 import { StatCard } from "../components/ui/StatCard";
 import { useTheme } from "../context/ThemeContext";

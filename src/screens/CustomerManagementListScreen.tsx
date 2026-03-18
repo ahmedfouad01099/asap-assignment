@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, SafeAreaView, TouchableOpacity, TextInput, StyleSheet, FlatList, Alert, Modal } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, FlatList, Alert, Modal } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon } from "../components/ui/Icon";
 import { StatCard } from "../components/ui/StatCard";
 import { useTheme } from "../context/ThemeContext";
