@@ -50,6 +50,24 @@ To see the full power of the app's integration, follow this flow:
     - Status badges (Healthy/Low/Out) update instantly based on the new count.
 5.  **Themes**: Toggle between Light and Dark mode to see the dynamic design system.
 
+## 🧪 Testing
+
+### 1. Unit Testing
+Powered by **Jest** and **React Testing Library**.
+```sh
+yarn test
+```
+
+### 2. E2E Testing (Maestro)
+Ensure you have **Maestro** installed.
+```sh
+# Run the core item flow test
+maestro test .maestro/item_flow.yaml
+
+# Run the full sales flow test
+maestro test .maestro/sales_flow.yaml
+```
+
 ---
 
 ## 🏛️ Architecture & Tech Stack
