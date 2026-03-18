@@ -9,7 +9,7 @@ import { useDashboard } from "../hooks/useDashboard";
 import { SPACING, SHADOWS } from "../theme";
 
 export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const { theme, isDark } = useTheme();
+  const { theme, isDark, toggleTheme } = useTheme();
   const { user, stats, handleLogout, getFirstName } = useDashboard(navigation);
 
   return (
@@ -25,8 +25,8 @@ export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) =
           </Text>
           <Text style={{ fontSize: 10, color: theme.textSecondary }}>StockSync Pro Dashboard</Text>
         </View>
-        <TouchableOpacity style={styles.headerButton}>
-          <Icon name="notifications" color={theme.text} size={24} />
+        <TouchableOpacity onPress={toggleTheme} style={styles.headerButton}>
+          <Icon name={isDark ? 'light_mode' : 'dark_mode'} color={theme.text} size={24} />
         </TouchableOpacity>
       </View>
 
