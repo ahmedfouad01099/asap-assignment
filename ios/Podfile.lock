@@ -1856,6 +1856,28 @@ PODS:
     - React-utils (= 0.84.1)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.84.1)
+  - RNDateTimePicker (9.1.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - RNScreens (4.24.0):
     - hermes-engine
     - RCTRequired
@@ -2119,6 +2141,7 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios/ReactCodegen`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
+  - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
@@ -2275,6 +2298,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeDependencies:
     :podspec: "../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec"
+  RNDateTimePicker:
+    :path: "../node_modules/@react-native-community/datetimepicker"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   RNSVG:
@@ -2361,6 +2386,7 @@ SPEC CHECKSUMS:
   ReactCodegen: 797de5178718324c6eba3327b07f9a423fbd5787
   ReactCommon: 07572bf9e687c8a52fbe4a3641e9e3a1a477c78e
   ReactNativeDependencies: d61b20de7ea2028b7c33457e2aff4baa3bffa58e
+  RNDateTimePicker: 9025ccd219b382f246e9ceb85cd4095279b9bad1
   RNScreens: 6cb648bdad8fe9bee9259fe144df95b6d1d5b707
   RNSVG: 507bf2685de6b3d49449efd4aae7e7471bb9c433
   RNVectorIcons: 4351544f100d4f12cac156a7c13399e60bab3e26

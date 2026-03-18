@@ -42,6 +42,11 @@ export const SelectionModal: React.FC<SelectionModalProps> = ({
             data={data}
             keyExtractor={keyExtractor}
             renderItem={renderItem}
+            ListEmptyComponent={
+              <View style={{ padding: 20, alignItems: 'center' }}>
+                <Text style={{ color: theme.textSecondary }}>No items found</Text>
+              </View>
+            }
           />
           <TouchableOpacity onPress={onClose} style={styles.modalClose}>
             <Text style={{ color: theme.primary }}>Close</Text>

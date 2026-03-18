@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert, Modal, FlatList } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert, Modal, FlatList, Platform } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon } from "../components/ui/Icon";
 import { useTheme } from "../context/ThemeContext";
@@ -22,8 +23,12 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
     setItemModalVisible,
     customerModalVisible,
     setCustomerModalVisible,
+    categories,
+    categoryModalVisible,
+    setCategoryModalVisible,
     invoiceNumber,
-    today,
+    invoiceDate,
+    setInvoiceDate,
     subtotal,
     vat,
     total,
@@ -31,6 +36,9 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
     removeLineItem,
     handleSave,
   } = useCreateSaleInvoice(navigation);
+
+  const [showDatePicker, setShowDatePicker] = React.useState(false);
+  const [selectedCategory, setSelectedCategory] = React.useState<any>(null);
 
 
 
@@ -64,9 +72,14 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
             </View>
             <View style={styles.flexField}>
               <Text style={[styles.label, { color: theme.textSecondary }]}>Date</Text>
-              <View style={[styles.readonlyInput, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                <Text style={[styles.readonlyText, { color: theme.textSecondary }]}>{today}</Text>
-              </View>
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
+                style={[styles.readonlyInput, { backgroundColor: theme.background, borderColor: theme.border }]}
+              >
+                <Text style={[styles.readonlyText, { color: theme.text }]}>
+                  {invoiceDate.toISOString().split('T')[0]}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -103,7 +116,7 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
 
           <TouchableOpacity
             testID="btn-add-line-item"
-            onPress={() => setItemModalVisible(true)}
+            onPress={() => setCategoryModalVisible(true)}
             style={[styles.addButton, { borderColor: theme.border }]}
           >
             <Icon name="add_circle" color={theme.primary} size={18} />
@@ -136,6 +149,35 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
         </TouchableOpacity>
       </View>
 
+      {/* Category Selection Modal */}
+      <SelectionModal
+        visible={categoryModalVisible}
+        title="Select Category"
+        testID="modal-title-select-category"
+        accessibilityLabel="Select Category"
+        data={categories}
+        onSelect={(category) => {
+          setSelectedCategory(category);
+          setCategoryModalVisible(false);
+          setItemModalVisible(true);
+        }}
+        onClose={() => setCategoryModalVisible(false)}
+        renderItem={({ item, index }) => (
+          <TouchableOpacity
+            testID={`category-option-${index}`}
+            onPress={() => {
+              setSelectedCategory(item);
+              setCategoryModalVisible(false);
+              setItemModalVisible(true);
+            }}
+            style={[styles.modalItem, { borderBottomColor: theme.border }]}
+          >
+            <Text style={{ color: theme.text }}>{item.name}</Text>
+            <Icon name="chevron_right" color={theme.textSecondary} size={20} />
+          </TouchableOpacity>
+        )}
+      />
+
       {/* Customer Selection Modal */}
       <SelectionModal
         visible={customerModalVisible}
@@ -165,10 +207,10 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
       {/* Item Selection Modal */}
       <SelectionModal
         visible={itemModalVisible}
-        title="Select Product"
+        title={selectedCategory ? `Products: ${selectedCategory.name}` : "Select Product"}
         testID="modal-title-select-product"
         accessibilityLabel="Select Product"
-        data={items}
+        data={items.filter(i => !selectedCategory || i.category_id === selectedCategory.id)}
         onSelect={(item) => {
           addLineItem(item);
           setItemModalVisible(false);
@@ -194,6 +236,19 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
           </TouchableOpacity>
         )}
       />
+      {showDatePicker && (
+        <DateTimePicker
+          value={invoiceDate}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, selectedDate) => {
+            setShowDatePicker(false);
+            if (selectedDate) {
+              setInvoiceDate(selectedDate);
+            }
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 };

@@ -4,3 +4,13 @@ extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autoli
 rootProject.name = 'AsapAssignment'
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
+
+// Workaround for legacy libraries using jcenter() with Gradle 9+
+gradle.beforeProject { project ->
+    project.buildscript.repositories.metaClass.jcenter = {
+        delegate.mavenCentral()
+    }
+    project.repositories.metaClass.jcenter = {
+        delegate.mavenCentral()
+    }
+}

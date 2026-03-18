@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { Alert } from "react-native";
-import { useItemDB, useCustomerDB, useInvoiceDB } from "../database/hooks";
-import { Item, Customer } from "../database/types";
+import { useItemDB, useCustomerDB, useInvoiceDB, useCategoryDB } from "../database/hooks";
+import { Item, Customer, Category } from "../database/types";
 
 interface LineItem {
   item: Item;
@@ -11,27 +11,32 @@ interface LineItem {
 export const useCreateSaleInvoice = (navigation: any) => {
   const { getItems } = useItemDB();
   const { getCustomers } = useCustomerDB();
+  const { getCategories } = useCategoryDB();
   const { createInvoice } = useInvoiceDB();
 
   const [loading, setLoading] = useState(true);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [items, setItems] = useState<Item[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   
   const [itemModalVisible, setItemModalVisible] = useState(false);
   const [customerModalVisible, setCustomerModalVisible] = useState(false);
+  const [categoryModalVisible, setCategoryModalVisible] = useState(false);
 
+  const [invoiceDate, setInvoiceDate] = useState(new Date());
+  
   const invoiceNumber = useMemo(() => `#INV-${Date.now().toString().slice(-6)}`, []);
-  const today = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [cData, iData] = await Promise.all([getCustomers(), getItems()]);
+        const [cData, iData, catData] = await Promise.all([getCustomers(), getItems(), getCategories()]);
         setCustomers(cData);
         setItems(iData);
+        setCategories(catData);
         if (cData.length > 0) setSelectedCustomer(cData[0]);
       } catch (error) {
         console.error("Error fetching invoice data:", error);
@@ -40,7 +45,7 @@ export const useCreateSaleInvoice = (navigation: any) => {
       }
     };
     fetchData();
-  }, [getCustomers, getItems]);
+  }, [getCustomers, getItems, getCategories]);
 
   const addLineItem = useCallback((item: Item) => {
     if (item.quantity <= 0) {
@@ -79,7 +84,7 @@ export const useCreateSaleInvoice = (navigation: any) => {
     try {
       await createInvoice({
         customer_id: selectedCustomer?.id || null,
-        date: new Date().toISOString(),
+        date: invoiceDate.toISOString(),
         total: total,
         vat: vat,
         due_amount: total,
@@ -111,8 +116,12 @@ export const useCreateSaleInvoice = (navigation: any) => {
     setItemModalVisible,
     customerModalVisible,
     setCustomerModalVisible,
+    categories,
+    categoryModalVisible,
+    setCategoryModalVisible,
     invoiceNumber,
-    today,
+    invoiceDate,
+    setInvoiceDate,
     subtotal,
     vat,
     total,
