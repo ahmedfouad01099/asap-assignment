@@ -5,6 +5,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { SHADOWS } from '../../theme';
 
 interface ActionCardProps {
+  testID?: string;
   title: string;
   subtitle: string;
   icon: string;
@@ -14,6 +15,7 @@ interface ActionCardProps {
 }
 
 export const ActionCard: React.FC<ActionCardProps> = ({ 
+  testID,
   title, 
   subtitle, 
   icon, 
@@ -26,6 +28,7 @@ export const ActionCard: React.FC<ActionCardProps> = ({
 
   return (
     <TouchableOpacity 
+      testID={testID}
       onPress={onPress}
       style={[
         styles.card,

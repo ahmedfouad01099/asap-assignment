@@ -4,8 +4,7 @@ import {
   Text, 
   FlatList, 
   TouchableOpacity, 
-  StyleSheet, 
-  ScrollView 
+  StyleSheet
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon } from "../components/ui/Icon";
@@ -52,7 +51,11 @@ export const InventoryScreen: React.FC<{ navigation: any }> = ({ navigation }) =
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity 
+          testID="btn-back"
+          onPress={() => navigation.goBack()} 
+          style={styles.backButton}
+        >
           <Icon name="arrow_back" color={theme.text} size={24} />
         </TouchableOpacity>
         <Text 

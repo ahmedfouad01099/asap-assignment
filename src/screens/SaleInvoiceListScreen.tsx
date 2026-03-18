@@ -33,7 +33,11 @@ export const SaleInvoiceListScreen: React.FC<{ navigation: any }> = ({ navigatio
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
       <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
         <Text style={[styles.headerTitle, { color: theme.text }]}>Sales Invoices</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('CreateInvoice')} style={styles.addButton}>
+        <TouchableOpacity 
+          testID="btn-add-invoice-header"
+          onPress={() => navigation.navigate("CreateInvoice")} 
+          style={styles.addButton}
+        >
           <Icon name="add" color={theme.primary} size={24} />
         </TouchableOpacity>
       </View>

@@ -1,0 +1,65 @@
+appId: com.asapassignment
+---
+# 0. Launch and authenticate once
+- launchApp
+- runFlow: auth.yaml
+
+# 1. Add Customer
+- tapOn:
+    id: tab-crm
+- tapOn:
+    id: "btn-add-customer-header"
+- tapOn:
+    id: "input-customer-name"
+- inputText: "Maestro Customer"
+- tapOn:
+    id: "input-customer-phone"
+- inputText: "0109999999"
+- tapOn:
+    id: "btn-submit-customer"
+- assertVisible: "Maestro Customer"
+- tapOn:
+    id: tab-home # back to dashboard tab
+
+# 2. Check Initial Inventory
+- tapOn:
+    id: "nav-item-menu"
+- tapOn:
+    id: "btn-item-menu-inventory"
+- assertVisible: "Stock Inventory"
+- assertVisible: "units"
+
+# 3. Create a Sale
+- hideKeyboard
+- tapOn:
+    id: "btn-back"
+- tapOn:
+    id: "btn-back" # back to Dashboard
+- tapOn:
+    id: "nav-transaction-menu"
+- tapOn:
+    id: "btn-add-invoice-header"
+- tapOn:
+    id: "btn-select-customer"
+- tapOn:
+    id: "customer-option-0"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-add-line-item"
+- tapOn:
+    id: "item-option-0"
+- tapOn:
+    id: "btn-complete-sale"
+- assertVisible: "Success" # success alert
+- tapOn: "OK"
+- waitForAnimationToEnd
+- assertVisible: "Hey," # back on Dashboard
+- tapOn: "Home" # tab bar navigation
+- tapOn:
+    id: "nav-item-menu"
+- tapOn:
+    id: "btn-item-menu-inventory"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "header-inventory"
+- assertVisible: "Stock Inventory"
