@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingVertical: 20,
   },
   listSection: {
     paddingHorizontal: SPACING.lg,

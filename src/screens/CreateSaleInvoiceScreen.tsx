@@ -5,6 +5,9 @@ import { Icon } from "../components/ui/Icon";
 import { useTheme } from "../context/ThemeContext";
 import { SPACING, SHADOWS } from "../theme";
 import { useCreateSaleInvoice } from "../hooks/useCreateSaleInvoice";
+import { LineItem } from "../components/Invoice/LineItem";
+import { InvoiceSummary } from "../components/Invoice/InvoiceSummary";
+import { SelectionModal } from "../components/ui/SelectionModal";
 
 export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { theme } = useTheme();
@@ -29,36 +32,7 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
     handleSave,
   } = useCreateSaleInvoice(navigation);
 
-  // iOS fix: track which modal to open after the current one fully dismisses
-  const pendingModal = React.useRef<'item' | 'customer' | null>(null);
 
-  const openItemModal = () => {
-    if (customerModalVisible) {
-      pendingModal.current = 'item';
-      setCustomerModalVisible(false);
-    } else {
-      setItemModalVisible(true);
-    }
-  };
-
-  const openCustomerModal = () => {
-    if (itemModalVisible) {
-      pendingModal.current = 'customer';
-      setItemModalVisible(false);
-    } else {
-      setCustomerModalVisible(true);
-    }
-  };
-
-  const handleModalDismiss = () => {
-    if (pendingModal.current === 'item') {
-      pendingModal.current = null;
-      setItemModalVisible(true);
-    } else if (pendingModal.current === 'customer') {
-      pendingModal.current = null;
-      setCustomerModalVisible(true);
-    }
-  };
 
   if (loading) return null;
 
@@ -100,7 +74,7 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
             <Text style={[styles.label, { color: theme.textSecondary }]}>Customer</Text>
             <TouchableOpacity
               testID="btn-select-customer"
-              onPress={openCustomerModal}
+              onPress={() => setCustomerModalVisible(true)}
               style={[styles.pickerToggle, { backgroundColor: theme.card, borderColor: theme.border }]}
             >
               <Text
@@ -118,21 +92,18 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
           <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>Item Details</Text>
 
           {lineItems.map((li, index) => (
-            <View key={index} style={styles.lineItemRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={{ color: theme.text, fontWeight: 'bold' }}>{li.item.name}</Text>
-                <Text style={{ color: theme.textSecondary, fontSize: 12 }}>{li.quantity} x ${li.item.price.toFixed(2)}</Text>
-              </View>
-              <Text style={{ color: theme.text, fontWeight: 'bold' }}>${(li.quantity * li.item.price).toFixed(2)}</Text>
-              <TouchableOpacity onPress={() => removeLineItem(li.item.id)} style={{ marginLeft: 12 }}>
-                <Icon name="delete_outline" color={theme.danger} size={20} />
-              </TouchableOpacity>
-            </View>
+            <LineItem 
+              key={index}
+              name={li.item.name}
+              quantity={li.quantity}
+              price={li.item.price}
+              onRemove={() => removeLineItem(li.item.id)}
+            />
           ))}
 
           <TouchableOpacity
             testID="btn-add-line-item"
-            onPress={openItemModal}
+            onPress={() => setItemModalVisible(true)}
             style={[styles.addButton, { borderColor: theme.border }]}
           >
             <Icon name="add_circle" color={theme.primary} size={18} />
@@ -140,23 +111,11 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }, SHADOWS.sm]}>
-          <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>Invoice Summary</Text>
-          <View style={styles.cardContent}>
-            <View style={styles.summaryRow}>
-              <Text style={{ color: theme.textSecondary }}>Subtotal</Text>
-              <Text style={[styles.summaryValue, { color: theme.text }]}>${subtotal.toFixed(2)}</Text>
-            </View>
-            <View style={styles.summaryRow}>
-              <Text style={{ color: theme.textSecondary }}>VAT (15%)</Text>
-              <Text style={[styles.summaryValue, { color: theme.text }]}>${vat.toFixed(2)}</Text>
-            </View>
-            <View style={[styles.totalRow, { borderTopColor: theme.border }]}>
-              <Text style={[styles.totalLabel, { color: theme.text }]}>Grand Total</Text>
-              <Text style={[styles.totalValue, { color: theme.primary }]}>${total.toFixed(2)}</Text>
-            </View>
-          </View>
-        </View>
+        <InvoiceSummary 
+          subtotal={subtotal}
+          vat={vat}
+          total={total}
+        />
       </ScrollView>
 
       <View style={[styles.footer, { backgroundColor: theme.card, borderTopColor: theme.border }]}>
@@ -177,71 +136,64 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
         </TouchableOpacity>
       </View>
 
-      {/* Customer Modal */}
-      <Modal visible={customerModalVisible} animationType="slide" transparent onDismiss={handleModalDismiss}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
-            <Text
-              testID="modal-title-select-customer"
-              accessibilityLabel="Select Customer"
-              style={[styles.modalTitle, { color: theme.text }]}
-            >
-              Select Customer
-            </Text>
-            <FlatList
-              data={customers}
-              keyExtractor={c => c.id.toString()}
-              renderItem={({ item, index }) => (
-                <TouchableOpacity
-                  testID={`customer-option-${index}`}
-                  onPress={() => { setSelectedCustomer(item); setCustomerModalVisible(false); }}
-                  style={[styles.modalItem, { borderBottomColor: theme.border }]}
-                >
-                  <Text style={{ color: theme.text }}>{item.name} ({item.phone})</Text>
-                </TouchableOpacity>
-              )}
-            />
-            <TouchableOpacity onPress={() => setCustomerModalVisible(false)} style={styles.modalClose}>
-              <Text style={{ color: theme.primary }}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      {/* Customer Selection Modal */}
+      <SelectionModal
+        visible={customerModalVisible}
+        title="Select Customer"
+        testID="modal-title-select-customer"
+        accessibilityLabel="Select Customer"
+        data={customers}
+        onSelect={(customer) => {
+          setSelectedCustomer(customer);
+          setCustomerModalVisible(false);
+        }}
+        onClose={() => setCustomerModalVisible(false)}
+        renderItem={({ item, index }) => (
+          <TouchableOpacity
+            testID={`customer-option-${index}`}
+            onPress={() => {
+              setSelectedCustomer(item);
+              setCustomerModalVisible(false);
+            }}
+            style={[styles.modalItem, { borderBottomColor: theme.border }]}
+          >
+            <Text style={{ color: theme.text }}>{item.name} ({item.phone})</Text>
+          </TouchableOpacity>
+        )}
+      />
 
-      {/* Item Modal */}
-      <Modal visible={itemModalVisible} animationType="slide" transparent onDismiss={handleModalDismiss}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
-            <Text
-              testID="modal-title-select-product"
-              accessibilityLabel="Select Product"
-              style={[styles.modalTitle, { color: theme.text }]}
-            >
-              Select Product
-            </Text>
-            <FlatList
-              data={items}
-              keyExtractor={i => i.id.toString()}
-              renderItem={({ item, index }) => (
-                <TouchableOpacity
-                  testID={`item-option-${index}`}
-                  onPress={() => addLineItem(item)}
-                  style={[styles.modalItem, { borderBottomColor: theme.border }]}
-                >
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ color: theme.text }}>{item.name}</Text>
-                    <Text style={{ color: theme.textSecondary, fontSize: 12 }}>Stock: {item.quantity}</Text>
-                  </View>
-                  <Text style={{ color: theme.primary, fontWeight: 'bold' }}>${item.price.toFixed(2)}</Text>
-                </TouchableOpacity>
-              )}
-            />
-            <TouchableOpacity onPress={() => setItemModalVisible(false)} style={styles.modalClose}>
-              <Text style={{ color: theme.primary }}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      {/* Item Selection Modal */}
+      <SelectionModal
+        visible={itemModalVisible}
+        title="Select Product"
+        testID="modal-title-select-product"
+        accessibilityLabel="Select Product"
+        data={items}
+        onSelect={(item) => {
+          addLineItem(item);
+          setItemModalVisible(false);
+        }}
+        onClose={() => setItemModalVisible(false)}
+        renderItem={({ item, index }) => (
+          <TouchableOpacity
+            testID={`item-option-${index}`}
+            onPress={() => {
+              addLineItem(item);
+              // We usually want to stay in the modal to add multiple items? 
+              // The original logic calls addLineItem(item) which doesn't close it, 
+              // but handleSelectCustomer does.
+              // Re-reading original item selection logic: it doesn't call setItemModalVisible(false)
+            }}
+            style={[styles.modalItem, { borderBottomColor: theme.border }]}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: theme.text }}>{item.name}</Text>
+              <Text style={{ color: theme.textSecondary, fontSize: 12 }}>Stock: {item.quantity}</Text>
+            </View>
+            <Text style={{ color: theme.primary, fontWeight: 'bold' }}>${item.price.toFixed(2)}</Text>
+          </TouchableOpacity>
+        )}
+      />
     </SafeAreaView>
   );
 };
@@ -345,16 +297,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 16,
   },
-  cardContent: {
-    gap: 12,
-  },
-  lineItemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ccc',
-  },
   addButton: {
     width: "100%",
     flexDirection: "row",
@@ -368,30 +310,6 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 14,
-    fontWeight: "bold",
-  },
-  summaryRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  summaryValue: {
-    fontWeight: "bold",
-  },
-  totalRow: {
-    paddingTop: 12,
-    marginTop: 12,
-    borderTopWidth: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  totalLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  totalValue: {
-    fontSize: 20,
     fontWeight: "bold",
   },
   footer: {
@@ -424,33 +342,11 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 24,
-    maxHeight: '80%',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
   modalItem: {
     paddingVertical: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  modalClose: {
-    marginTop: 16,
-    paddingVertical: 12,
     alignItems: 'center',
   },
 });
