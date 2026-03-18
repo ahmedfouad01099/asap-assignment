@@ -20,7 +20,7 @@ export const AddNewItemFormScreen: React.FC<{ navigation: any }> = ({ navigation
     isModalVisible,
     setIsModalVisible,
     categories,
-    setCategoryId
+    setCategoryId,
   } = useAddNewItem(navigation);
 
   return (
@@ -282,31 +282,31 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
   },
   modalContent: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
-    maxHeight: '80%',
+    maxHeight: "80%",
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   modalItem: {
     paddingVertical: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   modalClose: {
     marginTop: 16,
     paddingVertical: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
 });

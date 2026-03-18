@@ -29,6 +29,37 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
     handleSave,
   } = useCreateSaleInvoice(navigation);
 
+  // iOS fix: track which modal to open after the current one fully dismisses
+  const pendingModal = React.useRef<'item' | 'customer' | null>(null);
+
+  const openItemModal = () => {
+    if (customerModalVisible) {
+      pendingModal.current = 'item';
+      setCustomerModalVisible(false);
+    } else {
+      setItemModalVisible(true);
+    }
+  };
+
+  const openCustomerModal = () => {
+    if (itemModalVisible) {
+      pendingModal.current = 'customer';
+      setItemModalVisible(false);
+    } else {
+      setCustomerModalVisible(true);
+    }
+  };
+
+  const handleModalDismiss = () => {
+    if (pendingModal.current === 'item') {
+      pendingModal.current = null;
+      setItemModalVisible(true);
+    } else if (pendingModal.current === 'customer') {
+      pendingModal.current = null;
+      setCustomerModalVisible(true);
+    }
+  };
+
   if (loading) return null;
 
   return (
@@ -49,7 +80,7 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
               <Text style={[styles.badgeText, { color: theme.success }]}>Sale</Text>
             </View>
           </View>
-          
+
           <View style={styles.row}>
             <View style={styles.flexField}>
               <Text style={[styles.label, { color: theme.textSecondary }]}>Invoice Number</Text>
@@ -64,14 +95,18 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
               </View>
             </View>
           </View>
-          
+
           <View style={styles.fieldContainer}>
             <Text style={[styles.label, { color: theme.textSecondary }]}>Customer</Text>
-            <TouchableOpacity 
-              onPress={() => setCustomerModalVisible(true)}
+            <TouchableOpacity
+              testID="btn-select-customer"
+              onPress={openCustomerModal}
               style={[styles.pickerToggle, { backgroundColor: theme.card, borderColor: theme.border }]}
             >
-              <Text style={[styles.pickerText, { color: theme.text }]}>
+              <Text
+                testID="selected-customer-name"
+                style={[styles.pickerText, { color: theme.text }]}
+              >
                 {selectedCustomer ? selectedCustomer.name : "Select Customer"}
               </Text>
               <Icon name="expand_more" color={theme.textSecondary} size={24} />
@@ -81,7 +116,7 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
 
         <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }, SHADOWS.sm]}>
           <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>Item Details</Text>
-          
+
           {lineItems.map((li, index) => (
             <View key={index} style={styles.lineItemRow}>
               <View style={{ flex: 1 }}>
@@ -95,8 +130,9 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
             </View>
           ))}
 
-          <TouchableOpacity 
-            onPress={() => setItemModalVisible(true)}
+          <TouchableOpacity
+            testID="btn-add-line-item"
+            onPress={openItemModal}
             style={[styles.addButton, { borderColor: theme.border }]}
           >
             <Icon name="add_circle" color={theme.primary} size={18} />
@@ -124,13 +160,15 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
       </ScrollView>
 
       <View style={[styles.footer, { backgroundColor: theme.card, borderTopColor: theme.border }]}>
-        <TouchableOpacity 
+        <TouchableOpacity
+          testID="btn-cancel-invoice"
           onPress={() => navigation.goBack()}
           style={[styles.cancelButton, { borderColor: theme.border }]}
         >
           <Text style={[styles.cancelButtonText, { color: theme.textSecondary }]}>Cancel</Text>
         </TouchableOpacity>
-        <TouchableOpacity 
+        <TouchableOpacity
+          testID="btn-complete-sale"
           onPress={handleSave}
           style={[styles.saveButton, { backgroundColor: theme.primary }, SHADOWS.primary]}
         >
@@ -140,15 +178,22 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
       </View>
 
       {/* Customer Modal */}
-      <Modal visible={customerModalVisible} animationType="slide" transparent>
+      <Modal visible={customerModalVisible} animationType="slide" transparent onDismiss={handleModalDismiss}>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>Select Customer</Text>
+            <Text
+              testID="modal-title-select-customer"
+              accessibilityLabel="Select Customer"
+              style={[styles.modalTitle, { color: theme.text }]}
+            >
+              Select Customer
+            </Text>
             <FlatList
               data={customers}
               keyExtractor={c => c.id.toString()}
-              renderItem={({ item }) => (
-                <TouchableOpacity 
+              renderItem={({ item, index }) => (
+                <TouchableOpacity
+                  testID={`customer-option-${index}`}
                   onPress={() => { setSelectedCustomer(item); setCustomerModalVisible(false); }}
                   style={[styles.modalItem, { borderBottomColor: theme.border }]}
                 >
@@ -164,15 +209,22 @@ export const CreateSaleInvoiceScreen: React.FC<{ navigation: any }> = ({ navigat
       </Modal>
 
       {/* Item Modal */}
-      <Modal visible={itemModalVisible} animationType="slide" transparent>
+      <Modal visible={itemModalVisible} animationType="slide" transparent onDismiss={handleModalDismiss}>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>Select Product</Text>
+            <Text
+              testID="modal-title-select-product"
+              accessibilityLabel="Select Product"
+              style={[styles.modalTitle, { color: theme.text }]}
+            >
+              Select Product
+            </Text>
             <FlatList
               data={items}
               keyExtractor={i => i.id.toString()}
-              renderItem={({ item }) => (
-                <TouchableOpacity 
+              renderItem={({ item, index }) => (
+                <TouchableOpacity
+                  testID={`item-option-${index}`}
                   onPress={() => addLineItem(item)}
                   style={[styles.modalItem, { borderBottomColor: theme.border }]}
                 >
