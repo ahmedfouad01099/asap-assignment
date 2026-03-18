@@ -20,10 +20,15 @@ export const ItemCategoryScreen: React.FC<{ navigation: any }> = ({ navigation }
 
   const renderItem = ({ item }: { item: Category }) => (
     <View
+      testID={`category-item-${item.id}`}
       style={[styles.categoryCard, { backgroundColor: theme.card, borderColor: theme.border }]}
     >
       <Text style={[styles.categoryName, { color: theme.text }]}>{item.name}</Text>
-      <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.deleteButton}>
+      <TouchableOpacity 
+        testID={`btn-delete-category-${item.id}`}
+        onPress={() => handleDelete(item.id)} 
+        style={styles.deleteButton}
+      >
         <Icon name="delete_outline" color={theme.danger} size={20} />
       </TouchableOpacity>
     </View>
@@ -32,7 +37,11 @@ export const ItemCategoryScreen: React.FC<{ navigation: any }> = ({ navigation }
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
       <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity 
+          testID="btn-back"
+          onPress={() => navigation.goBack()} 
+          style={styles.backButton}
+        >
           <Icon name="arrow_back_ios" color={theme.text} size={20} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: theme.text }]}>Categories</Text>
@@ -49,6 +58,7 @@ export const ItemCategoryScreen: React.FC<{ navigation: any }> = ({ navigation }
 
       <View style={styles.addSection}>
         <TextInput
+          testID="input-category-name"
           style={[styles.input, { backgroundColor: theme.card, borderColor: theme.border, color: theme.text }]}
           placeholder="New Category Name"
           placeholderTextColor={theme.textSecondary}
@@ -56,6 +66,7 @@ export const ItemCategoryScreen: React.FC<{ navigation: any }> = ({ navigation }
           onChangeText={setNewCategoryName}
         />
         <TouchableOpacity
+          testID="btn-add-category"
           onPress={handleAdd}
           style={[styles.addButton, { backgroundColor: theme.primary }]}
         >

@@ -1,0 +1,52 @@
+appId: com.asapassignment
+---
+- launchApp
+- runFlow: auth.yaml
+
+# Create Category
+- tapOn:
+    id: "nav-item-menu"
+- tapOn:
+    id: "btn-item-menu-category"
+- tapOn:
+    id: "input-category-name"
+- inputText: "Electronics"
+- tapOn:
+    id: "btn-add-category"
+- assertVisible: "Electronics"
+
+# Add Item
+- hideKeyboard
+- tapOn:
+    id: "btn-back"
+- tapOn:
+    id: "btn-item-menu-add"
+- tapOn:
+    id: "input-item-name"
+- inputText: "Maestro Test 1"
+- tapOn:
+    id: "btn-select-category"
+- tapOn: "Electronics" # Select from the modal
+- assertVisible:
+    id: "selected-category-name"
+    text: "Electronics" # Verify selection on main screen
+- tapOn:
+    id: "input-item-price"
+- inputText: "99.99"
+- tapOn:
+    id: "input-item-quantity"
+- inputText: "50"
+- tapOn:
+    id: "btn-save-item"
+- assertVisible: "Success"
+- tapOn: "OK"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "btn-item-menu-list"
+- tapOn:
+    id: "btn-item-menu-list"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "header-item-list"
+- assertVisible:
+    id: "item-name-Maestro Test 1"

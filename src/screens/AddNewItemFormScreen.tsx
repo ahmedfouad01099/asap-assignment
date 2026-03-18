@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert, Modal, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon } from "../components/ui/Icon";
 import { useTheme } from "../context/ThemeContext";
@@ -17,13 +17,16 @@ export const AddNewItemFormScreen: React.FC<{ navigation: any }> = ({ navigation
     setQuantity,
     selectedCategory,
     handleSave,
-    toggleCategory
+    isModalVisible,
+    setIsModalVisible,
+    categories,
+    setCategoryId
   } = useAddNewItem(navigation);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
       <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
@@ -39,7 +42,8 @@ export const AddNewItemFormScreen: React.FC<{ navigation: any }> = ({ navigation
           <Text style={[styles.label, { color: theme.text }]}>
             Item Name
           </Text>
-          <TextInput 
+          <TextInput
+            testID="input-item-name"
             style={[styles.input, { backgroundColor: theme.card, borderColor: theme.border, color: theme.text }]}
             placeholder="e.g. Wireless Headphones"
             placeholderTextColor={theme.textSecondary}
@@ -53,10 +57,14 @@ export const AddNewItemFormScreen: React.FC<{ navigation: any }> = ({ navigation
             Category
           </Text>
           <TouchableOpacity 
-            onPress={toggleCategory}
+            testID="btn-select-category"
+            onPress={() => setIsModalVisible(true)}
             style={[styles.pickerToggle, { backgroundColor: theme.card, borderColor: theme.border }]}
           >
-            <Text style={[styles.pickerText, { color: selectedCategory ? theme.text : theme.textSecondary }]}>
+            <Text 
+              testID="selected-category-name"
+              style={[styles.pickerText, { color: selectedCategory ? theme.text : theme.textSecondary }]}
+            >
               {selectedCategory ? selectedCategory.name : "Select category"}
             </Text>
             <Icon name="expand_more" color={theme.textSecondary} size={24} />
@@ -70,7 +78,8 @@ export const AddNewItemFormScreen: React.FC<{ navigation: any }> = ({ navigation
             </Text>
             <View style={styles.priceInputWrapper}>
               <Text style={[styles.currencySymbol, { color: theme.textSecondary }]}>$</Text>
-              <TextInput 
+              <TextInput
+                testID="input-item-price"
                 style={[styles.input, styles.priceInput, { backgroundColor: theme.card, borderColor: theme.border, color: theme.text }]}
                 placeholder="0.00"
                 placeholderTextColor={theme.textSecondary}
@@ -84,7 +93,8 @@ export const AddNewItemFormScreen: React.FC<{ navigation: any }> = ({ navigation
             <Text style={[styles.label, { color: theme.text }]}>
               Quantity
             </Text>
-            <TextInput 
+            <TextInput
+              testID="input-item-quantity"
               style={[styles.input, { backgroundColor: theme.card, borderColor: theme.border, color: theme.text }]}
               placeholder="0"
               placeholderTextColor={theme.textSecondary}
@@ -108,7 +118,8 @@ export const AddNewItemFormScreen: React.FC<{ navigation: any }> = ({ navigation
       </ScrollView>
 
       <View style={[styles.footer, { backgroundColor: theme.card, borderTopColor: theme.border }]}>
-        <TouchableOpacity 
+        <TouchableOpacity
+          testID="btn-save-item"
           onPress={handleSave}
           style={[styles.saveButton, SHADOWS.primary, { backgroundColor: theme.primary }]}
         >
@@ -116,6 +127,31 @@ export const AddNewItemFormScreen: React.FC<{ navigation: any }> = ({ navigation
           <Text style={[styles.saveButtonText, { color: "white" }]}>Save to SQLite</Text>
         </TouchableOpacity>
       </View>
+      
+      {/* Category Selection Modal */}
+      <Modal visible={isModalVisible} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>Select Category</Text>
+            <FlatList
+              data={categories}
+              keyExtractor={c => c.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity 
+                  testID={`category-option-${item.id}`}
+                  onPress={() => { setCategoryId(item.id); setIsModalVisible(false); }}
+                  style={[styles.modalItem, { borderBottomColor: theme.border }]}
+                >
+                  <Text style={{ color: theme.text }}>{item.name}</Text>
+                </TouchableOpacity>
+              )}
+            />
+            <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.modalClose}>
+              <Text style={{ color: theme.primary }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -243,5 +279,34 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
     fontWeight: "bold",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    maxHeight: '80%',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  modalItem: {
+    paddingVertical: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  modalClose: {
+    marginTop: 16,
+    paddingVertical: 12,
+    alignItems: 'center',
   },
 });

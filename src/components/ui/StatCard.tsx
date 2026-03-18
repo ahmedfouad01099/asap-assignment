@@ -10,6 +10,7 @@ interface StatCardProps {
   icon: string;
   color?: string;
   style?: ViewStyle;
+  testID?: string;
 }
 
 export const StatCard: React.FC<StatCardProps> = ({ 
@@ -17,12 +18,15 @@ export const StatCard: React.FC<StatCardProps> = ({
   value, 
   icon, 
   color,
-  style 
+  style,
+  testID
 }) => {
   const { theme } = useTheme();
 
   return (
-    <View style={[
+    <View 
+      testID={testID}
+      style={[
       styles.statCard, 
       { backgroundColor: theme.card, borderColor: theme.border },
       style

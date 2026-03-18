@@ -13,10 +13,16 @@ export const ItemListScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
 
   const renderItem = ({ item }: { item: any }) => (
     <TouchableOpacity
+      testID={`item-card-${item.name}`}
       style={[styles.itemCard, { backgroundColor: theme.card, borderColor: theme.border }]}
     >
       <View style={styles.itemInfo}>
-        <Text style={[styles.itemName, { color: theme.text }]}>{item.name}</Text>
+        <Text 
+          testID={`item-name-${item.name}`}
+          style={[styles.itemName, { color: theme.text }]}
+        >
+          {item.name}
+        </Text>
         <Text style={[styles.itemCategory, { color: theme.textSecondary }]}>{item.category_name || "No Category"}</Text>
       </View>
       <View style={styles.itemRight}>
@@ -36,7 +42,12 @@ export const ItemListScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Icon name="arrow_back_ios" color={theme.text} size={20} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>Item List</Text>
+        <Text 
+          testID="header-item-list"
+          style={[styles.headerTitle, { color: theme.text }]}
+        >
+          Item List
+        </Text>
         <TouchableOpacity onPress={() => navigation.navigate('AddItem')} style={styles.addButton}>
           <Icon name="add" color={theme.primary} size={24} />
         </TouchableOpacity>

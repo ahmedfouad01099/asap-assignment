@@ -28,6 +28,13 @@ export const ItemMenuOverviewScreen: React.FC<{ navigation: any }> = ({ navigati
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
+        <TouchableOpacity 
+          testID="btn-back"
+          onPress={() => navigation.goBack()} 
+          style={styles.backButton}
+        >
+          <Icon name="arrow_back_ios" color={theme.text} size={20} />
+        </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: theme.text }]}>
           Item Menu
         </Text>
@@ -69,6 +76,7 @@ export const ItemMenuOverviewScreen: React.FC<{ navigation: any }> = ({ navigati
         {/* Menu Options */}
         <View style={styles.menuOptions}>
           <ActionCard 
+            testID="btn-item-menu-add"
             title="Add Item"
             subtitle="Create a new inventory record"
             icon="add_circle_outline"
@@ -76,6 +84,7 @@ export const ItemMenuOverviewScreen: React.FC<{ navigation: any }> = ({ navigati
           />
 
           <ActionCard 
+            testID="btn-item-menu-list"
             title="Item List"
             subtitle="View and edit all products"
             icon="list_alt"
@@ -83,6 +92,7 @@ export const ItemMenuOverviewScreen: React.FC<{ navigation: any }> = ({ navigati
           />
 
           <ActionCard 
+            testID="btn-item-menu-category"
             title="Item Category"
             subtitle="Organize items into groups"
             icon="category"
@@ -90,6 +100,7 @@ export const ItemMenuOverviewScreen: React.FC<{ navigation: any }> = ({ navigati
           />
 
           <ActionCard 
+            testID="btn-item-menu-inventory"
             title="Inventory"
             subtitle="Stock tracking and movements"
             icon="inventory_2"

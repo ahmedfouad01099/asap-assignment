@@ -23,7 +23,10 @@ export const InventoryScreen: React.FC<{ navigation: any }> = ({ navigation }) =
     const { label, color } = getStockStatus(qty);
 
     return (
-      <View style={[styles.itemRow, { backgroundColor: theme.card, borderColor: theme.border }]}>
+      <View 
+        testID={`inventory-item-${item.id}`}
+        style={[styles.itemRow, { backgroundColor: theme.card, borderColor: theme.border }]}
+      >
         <View style={styles.itemMain}>
           <Text style={[styles.itemName, { color: theme.text }]}>{item.name}</Text>
           <Text style={[styles.itemCategory, { color: theme.textSecondary }]}>{item.category_name || "General"}</Text>
@@ -33,7 +36,12 @@ export const InventoryScreen: React.FC<{ navigation: any }> = ({ navigation }) =
           <View style={[styles.statusBadge, { backgroundColor: `${color}15`, borderColor: `${color}30` }]}>
             <Text style={[styles.statusText, { color }]}>{label}</Text>
           </View>
-          <Text style={[styles.qtyText, { color: theme.text }]}>{qty.toLocaleString()}</Text>
+          <Text 
+            testID={`inventory-item-qty-${item.id}`}
+            style={[styles.qtyText, { color: theme.text }]}
+          >
+            {qty.toLocaleString()}
+          </Text>
           <Text style={[styles.unitText, { color: theme.textSecondary }]}>units</Text>
         </View>
       </View>
@@ -47,8 +55,17 @@ export const InventoryScreen: React.FC<{ navigation: any }> = ({ navigation }) =
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Icon name="arrow_back" color={theme.text} size={24} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>Stock Inventory</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('AddItem')} style={styles.headerButton}>
+        <Text 
+          testID="header-inventory"
+          style={[styles.headerTitle, { color: theme.text }]}
+        >
+          Stock Inventory
+        </Text>
+        <TouchableOpacity 
+          testID="btn-add-item-header"
+          onPress={() => navigation.navigate('AddItem')} 
+          style={styles.headerButton}
+        >
           <Icon name="add" color={theme.primary} size={24} />
         </TouchableOpacity>
       </View>
@@ -57,12 +74,14 @@ export const InventoryScreen: React.FC<{ navigation: any }> = ({ navigation }) =
         {/* Quick Summary */}
         <View style={styles.summaryGrid}>
           <StatCard 
+            testID="inventory-total-stat"
             label="Total Units"
             value={stats.totalQty}
             icon="inventory_2"
             style={styles.summaryCard}
           />
           <StatCard 
+            testID="inventory-warning-stat"
             label="Low/Out"
             value={stats.lowStock + stats.outOfStock}
             icon="warning"

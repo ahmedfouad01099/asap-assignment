@@ -12,6 +12,7 @@ export const useAddNewItem = (navigation: any) => {
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -47,16 +48,6 @@ export const useAddNewItem = (navigation: any) => {
 
   const selectedCategory = categories.find(c => c.id === categoryId);
 
-  const toggleCategory = () => {
-    if (categories.length === 0) {
-      Alert.alert("No Categories", "Please add a category first in Item Category.");
-    } else {
-      const currentIndex = categories.findIndex(c => c.id === categoryId);
-      const nextIndex = (currentIndex + 1) % categories.length;
-      setCategoryId(categories[nextIndex].id);
-    }
-  };
-
   return {
     name,
     setName,
@@ -69,6 +60,7 @@ export const useAddNewItem = (navigation: any) => {
     categories,
     selectedCategory,
     handleSave,
-    toggleCategory
+    isModalVisible,
+    setIsModalVisible
   };
 };
