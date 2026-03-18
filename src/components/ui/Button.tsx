@@ -11,6 +11,8 @@ interface ButtonProps {
   loading?: boolean;
   style?: ViewStyle;
   disabled?: boolean;
+  testID?: string;
+  accessibilityLabel?: string;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -21,6 +23,8 @@ export const Button: React.FC<ButtonProps> = ({
   loading = false,
   style,
   disabled = false,
+  testID,
+  accessibilityLabel,
 }) => {
   const { theme } = useTheme();
 
@@ -68,6 +72,8 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <TouchableOpacity
+      testID={testID}
+      accessibilityLabel={accessibilityLabel}
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.8}

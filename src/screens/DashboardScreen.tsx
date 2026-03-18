@@ -35,11 +35,13 @@ export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) =
         <View style={styles.statsSection}>
           <View style={styles.statsRow}>
             <StatCard 
+              testID="dashboard-items-stat"
               label="Items"
               value={stats.items}
               icon="inventory_2"
             />
             <StatCard 
+              testID="dashboard-invoices-stat"
               label="Invoices"
               value={stats.invoices}
               icon="receipt_long"
@@ -47,6 +49,7 @@ export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) =
           </View>
 
           <StatCard 
+            testID="dashboard-customers-stat"
             label="Total Customers"
             value={stats.customers}
             icon="group"
@@ -61,6 +64,7 @@ export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) =
           
           <View style={styles.quickNavGrid}>
             <ActionCard 
+              testID="nav-item-menu"
               title="Item Menu"
               subtitle="Manage stocks & categories"
               icon="category"
@@ -69,6 +73,7 @@ export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) =
             />
 
             <ActionCard 
+              testID="nav-transaction-menu"
               title="Transaction Menu"
               subtitle="Invoices & sales history"
               icon="point_of_sale"
@@ -76,6 +81,7 @@ export const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) =
             />
 
             <ActionCard 
+              testID="nav-customer-management"
               title="Customer Management"
               subtitle="Directory & active profiles"
               icon="group"

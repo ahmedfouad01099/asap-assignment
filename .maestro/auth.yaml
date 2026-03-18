@@ -1,0 +1,15 @@
+appId: com.asapassignment
+---
+- launchApp
+- tapOn:
+    id: "login-email-input"
+- eraseText: 50
+- inputText: "admin@asap.com"
+- tapOn:
+    id: "login-password-input"
+- eraseText: 50
+- inputText: "password123"
+- tapOn:
+    id: "login-button"
+- assertVisible:
+    text: "Hey, .* 👋"

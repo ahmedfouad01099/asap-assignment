@@ -57,6 +57,8 @@ export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           {/* Form Section */}
           <View style={styles.formSection}>
             <Input
+              testID="login-email-input"
+              accessibilityLabel="login-email-input"
               label="Work Email"
               placeholder="admin@asap.com"
               keyboardType="email-address"
@@ -70,6 +72,8 @@ export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
               icon={<Icon name="mail" color={theme.textSecondary} size={20} />}
             />
             <Input
+              testID="login-password-input"
+              accessibilityLabel="login-password-input"
               label="Password"
               placeholder="Enter your password"
               secureTextEntry
@@ -112,6 +116,8 @@ export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           {/* Actions */}
           <View style={styles.actionSection}>
             <Button
+              testID="login-button"
+              accessibilityLabel="login-button"
               label={isLoading ? "Authenticating..." : "Login to Dashboard"}
               onPress={handleLogin}
               disabled={isLoading}
